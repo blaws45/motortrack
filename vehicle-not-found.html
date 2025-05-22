@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Motortrack - Vehicle Not Found</title>
+  <style>
+    body { background-color: #a8c7e0; font-family: Arial; display: flex; justify-content: center; padding: 50px; }
+    .container { background-color: white; padding: 30px; border-radius: 8px; width: 300px; text-align: center; }
+    h1 { font-family: Georgia; }
+    input, button { width: 90%; padding: 10px; margin: 8px 0; }
+    button { background-color: #3fa9f5; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Motortrack</h1>
+    <p><strong>Vehicle not found:</strong></p>
+    <p>Provide details to add vehicle</p>
+    <input type="text" placeholder="VIN" id="vin">
+    <input type="text" placeholder="Make" id="make">
+    <input type="text" placeholder="Model" id="model">
+    <input type="text" placeholder="Colour" id="colour">
+    <input type="text" placeholder="Odometer" id="odometer">
+    <button onclick="createVehicle()">Register Vehicle</button>
+    <br>
+    <a href="index.html"><button class="button">Home</button></a>
+  </div>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script>
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const registerContractAddress = "0x4aD87eE3b3a41c56106FaAd23Df850442500aD65";
+        const registerContractABI = [
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "make",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "model",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "colour",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "vin",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "odometer",
+				"type": "uint256"
+			}
+		],
+		"name": "VehicleRegistered",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_make",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_model",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_colour",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_vin",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_odometer",
+				"type": "uint256"
+			}
+		],
+		"name": "createVehicle",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_vin",
+				"type": "string"
+			}
+		],
+		"name": "getVehicleByVin",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_vin",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_make",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_model",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_colour",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_odometer",
+				"type": "uint256"
+			}
+		],
+		"name": "updateVehicle",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "vehicleCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+        let registerContract;
+        let signer;
+        provider.send("eth_requestAccounts", []).then(() => {
+            provider.listAccounts().then((accounts) => {
+                signer = provider.getSigner(accounts[0]);
+                registerContract = new ethers.Contract(
+                registerContractAddress,
+                registerContractABI,
+                signer
+                );
+            });
+        });
+        async function createVehicle() {
+            const vin = document.getElementById("vin").value.trim();
+            const make = document.getElementById("make").value.trim();
+            const model = document.getElementById("model").value.trim();
+            const colour = document.getElementById("colour").value.trim();
+            const odometerInput = document.getElementById("odometer").value.trim();
+            const odometer = parseInt(odometerInput, 10);
+            
+            try {
+                // Step 1: Call the contract's view function (no transaction involved)
+                const vehicle = await registerContract.createVehicle(make, model, colour, vin, odometer);
+                alert("Vehicle Registered");
+                window.location.href = "index.html";
+                
+            } catch (error) {
+                console.log("Not made");
+                console.log(error);
+              }
+        }
+    </script>
+</body>
+</html>
