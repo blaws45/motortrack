@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Motortrack - VIN Entry</title>
+  <style>
+    body {
+      background-color: #a8c7e0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 50px;
+    }
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+    }
+    h1 {
+      font-family: Georgia, serif;
+    }
+    input, button {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    button {
+      background-color: #3fa9f5;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Motortrack</h1>
+    <p>VIN Details</p>
+    <input id="vinInput" type="text" placeholder="Enter VIN.....">
+    <input id="odometerInput" type="number" placeholder="Enter Odometer...">
+    <button onclick="fetchVehicleDetails()">Submit</button>
+  </div>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script>
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const verifyContractAddress = "0xdbEFc40430315Aba85E33C7550B920D9a47eE2d5";
+        const registerContractAddress = "0x4aD87eE3b3a41c56106FaAd23Df850442500aD65";
+        const verifyContractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_registerVehicleAddress",
+				"type": "address"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "constructor"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_vin",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "inputOdemeter",
+				"type": "uint256"
+			}
+		],
+		"name": "fetchVehicleDetails",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "make",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "model",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "colour",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "odometer",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "fraud",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "registerVehicleContract",
+		"outputs": [
+			{
+				"internalType": "contract IRegisterVehicle",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
+];
+        let verifyContract;
+        let signer;
+        provider.send("eth_requestAccounts", []).then(() => {
+            provider.listAccounts().then((accounts) => {
+                signer = provider.getSigner(accounts[0]);
+                verifyContract = new ethers.Contract(
+                verifyContractAddress,
+                verifyContractABI,
+                signer
+                );
+            });
+        });
+        async function fetchVehicleDetails() {
+            const vin = document.getElementById("vinInput").value.trim();
+            const odometerInput = document.getElementById("odometerInput").value.trim();
+            const odometer = parseInt(odometerInput, 10);
+
+            if (!vin || isNaN(odometer)) {
+                alert("Please enter a valid VIN and odometer.");
+                return;
+            }
+
+            try {
+                // Step 1: Call the contract's view function (no transaction involved)
+                const vehicle = await verifyContract.fetchVehicleDetails(vin, odometer);
+                console.log("Vehicle details fetched:", vehicle);
+                console.log(vehicle.make); 
+                localStorage.setItem('vehicle', JSON.stringify(vehicle));
+                localStorage.setItem('odometer', JSON.stringify(parseInt(vehicle.odometer._hex)))
+                localStorage.setItem('vin', vin)
+                if (!vehicle.fraud) {
+                    window.location.href = "vehicle-found-correct.html";    
+                }
+                else {
+                    window.location.href = "vehicle-found-forged.html";
+                }
+            } catch (error) {
+                console.log("Not Found");
+                window.location.href = "vehicle-not-found.html";
+            }
+}
+    </script>
+</body>
+</html> 

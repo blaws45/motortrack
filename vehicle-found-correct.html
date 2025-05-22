@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Motortrack - Vehicle Found</title>
+  <style>
+    body { background-color: #a8c7e0; font-family: Arial; display: flex; justify-content: center; padding: 50px; }
+    .container { background-color: white; padding: 30px; border-radius: 8px; width: 300px; text-align: center; }
+    h1 { font-family: Georgia; }
+    .info-box { background: #eee; margin: 5px; padding: 8px; }
+    .button { background-color: #3fa9f5; color: white; padding: 10px; border: none; margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Motortrack</h1>
+    <p><strong>Vehicle Found</strong></p>
+    <div class="info-box" id="make">Make: </div>
+    <div class="info-box" id ="model">Model: </div>
+    <div class="info-box" id="colour">Colour: </div>
+    <div class="info-box" id="odometer">Last Odometer: </div>
+    <button class="button" style="background-color: #259c05">No Fraud Detected</button>
+    <br>
+    <button class="button" onclick="Register()">Update Details?</button>
+    <br>
+    <a href="index.html"><button class="button">Home</button></a>
+  </div>
+</body>
+
+    <script>
+        const vehicle = JSON.parse(localStorage.getItem('vehicle'));
+        const odometer = JSON.parse(localStorage.getItem('odometer'))
+        
+        document.getElementById("make").innerHTML += vehicle[0];
+        document.getElementById("model").innerHTML += vehicle[1];
+        document.getElementById("colour").innerHTML += vehicle[2];
+        document.getElementById("odometer").innerHTML += odometer;
+        
+        function Register() {
+            localStorage.setItem('oldMake', vehicle[0]);
+            localStorage.setItem('oldModel', vehicle[1]);
+            window.location.href = "update.html";
+        }
+    </script>
+</html>
