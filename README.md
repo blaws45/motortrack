@@ -1,4 +1,5 @@
-![image](https://github.com/user-attachments/assets/d344c224-3073-4aac-9716-1639adad58d1)Group 39: Motortrack Application
+Group 39: Motortrack Application
+
 Motortrack is a blockchain-based vehicle history tracker application which is designed to authenticate odometer reading and prevent frauds to buyers and sellers. Using the vehicle’s VIN (Vehicle Identification Number), buyers can securely check a car's mileage/odometer history and authenticate the vehicle. 
 Steps of the application: 
 When a buyer enters a VIN
